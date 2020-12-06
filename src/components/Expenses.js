@@ -82,45 +82,43 @@ export default function StickyHeadTable(props) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [rows, setRows] = useState([]);
-  const [endDate, setEndDate] = useState("");
+  const [endDate, setEndDate] = useState("2020-12-31");
   const [startDate, setStartDate] = useState("2016-05-12");
   const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState([]);
   const [open, setOpen] = React.useState(false);
   const [newCategory, setNewCategory] = useState("");
-    const [openAlert, setOpenAlert] = useState(false);
-      const [message, setMessage] = useState();
-      const [success, setSuccess] = useState();
+  const [openAlert, setOpenAlert] = useState(false);
+  const [message, setMessage] = useState();
+  const [success, setSuccess] = useState();
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-  const getTodayDate = () => {
-    function pad(n, width, z) {
-      z = z || "0";
-      n = n + "";
-      return n.length >= width
-        ? n
-        : new Array(width - n.length + 1).join(z) + n;
-    }
-    const today = new Date();
-    const day = pad(today.getDate(), 2);
-    const month = today.getMonth() + 1;
-    const year = today.getFullYear();
-    return `${year}-${month}-${day}`;
-  };
   useEffect(() => {
-    setEndDate(getTodayDate());
-  }, []);
+    axios
+      .get("user/categories", {
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      })
+      .then((res) => {
+        if (res.data.message === "Invalid Token") {
+          props.history.push("signin");
+        } else {
+          setCategories(res.data.categories);
+        }
+        // console.log(res.data);
+      })
+      .catch((err) => {
+        // console.log(err.response);
+      });
+  }, [open, props.history]);
   useEffect(() => {
-    // getTodayDate()
-    //
-    console.log(startDate);
-    console.log(endDate);
     axios
       .post(
         category !== ""
@@ -137,11 +135,13 @@ export default function StickyHeadTable(props) {
         }
       )
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         setRows(res.data);
       })
-      .catch((err) => console.log(err.response.data));
-  }, [category, startDate, endDate]);
+      .catch((err) => {
+        // console.log(err.response.data)
+      });
+  }, [category, startDate, endDate, props.addedNewExpense]);
   const handleOpen = () => {
     setOpen(true);
   };
@@ -167,7 +167,7 @@ export default function StickyHeadTable(props) {
           }
         )
         .then((res) => {
-          console.log(res.data);
+          // console.log(res.data);
           setSuccess(true);
           setOpen(false);
           setMessage("Added new Category");
@@ -176,7 +176,7 @@ export default function StickyHeadTable(props) {
         })
         .catch((err) => {
           setSuccess(false);
-          console.log(err.response.data);
+          // console.log(err.response.data);
           setMessage(err.response.data.message);
           setOpenAlert(true);
         });
@@ -201,7 +201,7 @@ export default function StickyHeadTable(props) {
               <MenuItem value="" key="all">
                 All
               </MenuItem>
-              {props.categories.map((item, index) => {
+              {categories.map((item, index) => {
                 return (
                   <MenuItem value={item} key={index}>
                     {item}

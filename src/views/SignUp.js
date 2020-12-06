@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-export default function SignUp() {
+export default function SignUp(props) {
   const classes = useStyles();
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
@@ -44,24 +44,31 @@ export default function SignUp() {
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState(false);
   const handleSubmit = (e) => {
-    axios
-      .post("register", {
-        user_name: userName,
-        email: email,
-        password: password,
-      })
-      .then((res) => {
-        console.log(res.data);
-        setMessage("Signed Up Successfully");
-        setSuccess(true);
+    if (userName === '' || email === '' || password === '') {
+      setMessage('Plese fill all fields')
+      setSuccess(false)
+      setOpen(true)
+    } else {
+      axios
+        .post("register", {
+          user_name: userName,
+          email: email,
+          password: password,
+        })
+        .then((res) => {
+          // console.log(res.data);
+          setMessage("Signed Up Successfully");
+          setSuccess(true);
           setOpen(true);
-      })
-      .catch((err) => {
-        console.log(err.response.data);
-        setMessage(err.response.data.message);
-        setSuccess(false);
-        setOpen(true);
-      });
+          props.history.push('signin')
+        })
+        .catch((err) => {
+          // console.log(err.response.data);
+          setMessage(err.response.data.message);
+          setSuccess(false);
+          setOpen(true);
+        });
+    }
   };
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -142,7 +149,7 @@ export default function SignUp() {
           </Grid>
         </Grid>
       </div>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+      <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
         <Alert onClose={handleClose} severity={success ? "success" : "error"}>
           {message}
         </Alert>

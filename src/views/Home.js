@@ -19,7 +19,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import axios from "../constants/axios";
 
-import Expenses from "./Expenses";
+import Expenses from "../components/Expenses";
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -52,6 +52,7 @@ export default function Home(props) {
   const [message, setMessage] = useState();
   const [success, setSuccess] = useState();
   const [loader, setLoader] = useState(true);
+  const [addedNewExpense, setAddedNewExpense] = useState(false)
   useEffect(() => {
     axios
       .get("user/categories", {
@@ -66,11 +67,11 @@ export default function Home(props) {
           setCategories(res.data.categories);
           setLoader(false)
         }
-        console.log(res.data);
+        // console.log(res.data);
       })
       .catch((err) => {
         props.history.push("signin");
-        console.log(err.response);
+        // console.log(err.response);
       });
   }, [open, props.history]);
   const handleAddExpense = () => {
@@ -96,7 +97,8 @@ export default function Home(props) {
           }
         )
         .then((res) => {
-          console.log(res.data);
+          setAddedNewExpense(true)
+          // console.log(res.data);
           setOpen(false);
           setExpenseName("");
           setAmount("");
@@ -105,7 +107,7 @@ export default function Home(props) {
           setOpenAlert(true);
         })
         .catch((err) => {
-          console.log(err.response.data);
+          // console.log(err.response.data);
           setSuccess(false);
           setMessage(err.response.data.message);
           setOpenAlert(true);
@@ -113,6 +115,7 @@ export default function Home(props) {
     }
   };
   const handleClickOpen = () => {
+    setAddedNewExpense(false)
     setOpen(true);
   };
 
@@ -139,7 +142,7 @@ export default function Home(props) {
             </Button>
           </Toolbar>
         </AppBar>
-        <Expenses categories={categories} />
+        <Expenses addedNewExpense={addedNewExpense} />
         <Fab
           aria-label="Add"
           className={classes.fab}

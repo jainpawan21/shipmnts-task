@@ -44,24 +44,30 @@ export default function SignIn(props) {
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState(false);
   const handleSubmit = (e) => {
-    axios
-      .post("login", {
-        email: email,
-        password: password,
-      })
-      .then((res) => {
-        console.log(res.data);
-        localStorage.setItem("token", res.data.token);
-        setMessage("Sign In Successfully");
-        setSuccess(true);
-        setOpen(true);
-        props.history.push("/");
-      })
-      .catch((err) => {
-        setMessage(err.response.data.message);
-        setSuccess(false);
-        setOpen(true);
-      });
+    if (email === "" || password === "") {
+      setMessage("Plese fill all fields");
+      setSuccess(false);
+      setOpen(true);
+    } else {
+      axios
+        .post("login", {
+          email: email,
+          password: password,
+        })
+        .then((res) => {
+          // console.log(res.data);
+          localStorage.setItem("token", res.data.token);
+          setMessage("Sign In Successfully");
+          setSuccess(true);
+          setOpen(true);
+          props.history.push("/");
+        })
+        .catch((err) => {
+          setMessage(err.response.data.message);
+          setSuccess(false);
+          setOpen(true);
+        });
+    }
   };
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -123,7 +129,7 @@ export default function SignIn(props) {
           </Grid>
         </Grid>
       </div>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+      <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
         <Alert onClose={handleClose} severity={success ? "success" : "error"}>
           {message}
         </Alert>
